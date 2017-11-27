@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>glsl/coordinateaxisfragmentshader.frag</file>
+        <file>glsl/coordinateaxisshader.vert</file>
+    </qresource>
+</RCC>
