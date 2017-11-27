@@ -13,7 +13,7 @@ public:
     };
 
 public:
-    GLAxis(Axis axis = x);
+    explicit GLAxis(Axis axis = x);
     GLfloat axisLength() const {return m_axisLength;}
     void setAxisLength(GLfloat len);
 

@@ -8,7 +8,7 @@
 class GCodeInterpreter
 {
 public:
-    GCodeInterpreter(const QString &content);
+    explicit GCodeInterpreter(const QString &content);
 
 public:
     QList<GCodeCommand> interpret() const;

@@ -20,7 +20,7 @@ public:
         G91 = 91
     };
 public:
-    GCodeCommand(const QString &rawStr);
+    explicit GCodeCommand(const QString &rawStr);
 
 public:
     CodeType code() const {return m_code;}

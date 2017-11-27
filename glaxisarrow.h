@@ -7,7 +7,7 @@
 class GLAxisArrow : public GLDrawable
 {
 public:
-    GLAxisArrow(GLAxis::Axis axis = GLAxis::x);
+    explicit GLAxisArrow(GLAxis::Axis axis = GLAxis::x);
 
 public:
     bool hasIndexBuffer() const;
