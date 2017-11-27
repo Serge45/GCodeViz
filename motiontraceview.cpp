@@ -49,6 +49,14 @@ MotionTraceView::MotionTraceView(QWidget *parent)
     connect(this, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(onCustomContextMenuRequested(QPoint)));
 
+    m_updateTimer.setInterval(30);
+    m_updateTimer.setSingleShot(false);
+    connect(&m_updateTimer, SIGNAL(timeout()), this, SLOT(update()));
+    m_updateTimer.start();
+}
+
+MotionTraceView::~MotionTraceView() {
+    m_updateTimer.stop();
 }
 
 void MotionTraceView::initializeGL() {
@@ -128,8 +136,6 @@ void MotionTraceView::mouseMoveEvent(QMouseEvent *event) {
             m.rotate(m_rotationDegrees[2], 0, 0, 1);
         }
         m_modelViewProjection = m_projection * m * m_modelView;
-
-        update();
     }
 }
 
@@ -149,7 +155,6 @@ void MotionTraceView::wheelEvent(QWheelEvent *event) {
     }
     updateProjection();
     updateModelViewProjection();
-    update();
     event->accept();
 }
 
@@ -182,12 +187,10 @@ void MotionTraceView::onPlaneActionGroupTriggered(QAction *action) {
 
     m_worldRotation = rot;
     updateModelViewProjection();
-    update();
 }
 
 void MotionTraceView::onActionDrawMeshTriggered(bool onOff) {
     m_drawMesh = onOff;
-    update();
 }
 
 void MotionTraceView::addPointToTrace(const QVector3D &pt, int traceIdx) {
@@ -196,13 +199,11 @@ void MotionTraceView::addPointToTrace(const QVector3D &pt, int traceIdx) {
                                  static_cast<GLfloat>(pt.z())};
     m_traces[traceIdx].addPoint(glPt);
     rescale();
-    update();
 }
 
 void MotionTraceView::clearTrace(int traceIdx) {
     m_traces[traceIdx].clear();
     rescale();
-    update();
 }
 
 void MotionTraceView::clearAllTrace() {
@@ -213,7 +214,6 @@ void MotionTraceView::clearAllTrace() {
         m_traces[i].clear();
     }
     rescale();
-    update();
 }
 
 void MotionTraceView::setHighlightSegment(const QPair<int, int> &segment) {

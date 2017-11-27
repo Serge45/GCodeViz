@@ -11,6 +11,7 @@
 #include <QList>
 #include <QMutex>
 #include <QPair>
+#include <QTimer>
 #include "glaxis.h"
 #include "glaxisarrow.h"
 #include "glmotiontrace.h"
@@ -26,7 +27,8 @@ class MotionTraceView : public QOpenGLWidget
 {
     Q_OBJECT
 public:
-    MotionTraceView(QWidget *parent);
+    explicit MotionTraceView(QWidget *parent);
+    ~MotionTraceView() override;
 
 public slots:
     void addPointToTrace(const QVector3D &pt, int traceIdx);
@@ -60,7 +62,8 @@ private:
     QPointF calculateRotateDegrees(const QPointF &mousePos);
     void updateProjection();
     void updateModelViewProjection();
-    void drawObject(GLDrawable *obj, QOpenGLShaderProgram *drawer,
+    void drawObject(GLDrawable *obj,
+                    QOpenGLShaderProgram *drawer,
                     const QColor &color);
     void rescale();
     QPointF calculateShift(const QPointF &curPos, const QPointF &pressPos) const;
@@ -98,6 +101,7 @@ private:
     GLPlaneMesh m_planeMeshXY;
     bool m_drawMesh;
     QPair<int, int> m_highlightSegment;
+    QTimer m_updateTimer;
 };
 
 #endif // MOTIONTRACEVIEW_H
