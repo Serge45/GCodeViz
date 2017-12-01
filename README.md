@@ -1,4 +1,6 @@
 # GCodeViz #
+![](https://travis-ci.org/Serge45/GCodeViz.svg?branch=master)
+
 Open source G-Code visualization tool
 
 ![demo](https://farm2.staticflickr.com/1693/25655823712_60dcdaf007_b.jpg)
