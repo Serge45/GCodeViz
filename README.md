@@ -24,7 +24,7 @@ Open source G-Code visualization tool
 ## Building Intructions ##
  Requirements:
  - Qt 5.4+
- - Compiler that supoports C++11
+ - Compiler that supports C++11
 ### macOS ##
  - Install [homebrew](https://brew.sh)
  - `brew install qt5`
