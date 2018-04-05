@@ -65,7 +65,7 @@ void MainWindow::on_actionOpen_triggered()
     auto path = QFileDialog::getOpenFileName(this,
                                              tr("Open G-Code File"),
                                              "",
-                                             tr("Text files(*.txt *.nc *.ncc *.tap *gcode)"));
+                                             tr("Text files(*.txt *.nc *.ncc *.tap *.gcode)"));
 
     if (path.size() > 2) {
         QFile f(path);
