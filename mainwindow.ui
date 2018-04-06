@@ -41,9 +41,8 @@
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
-       <widget class="QListWidget" name="gcodeListWidget"/>
-       <widget class="QListWidget" name="commandListWidget"/>
       </widget>
+      <widget class="QPlainTextEdit" name="gcodeView"/>
      </widget>
     </item>
    </layout>

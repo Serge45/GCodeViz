@@ -9,11 +9,21 @@ GCodeInterpreter::GCodeInterpreter(const QString &content)
     QString strippedResult;
     strippedResult.reserve(m_gcodeContent.size());
 
-    foreach (auto &c, m_gcodeContent) {
-        if (c.isSpace()) {
-            continue;
+    QStringList contentLines = content.split(QRegExp("[\r\n]"), QString::SkipEmptyParts);
+
+    for (QString &line : contentLines) {
+        int commentStartIndex = -1;
+
+        if ((commentStartIndex = line.indexOf(';')) >= 0) {
+            line = line.mid(0, commentStartIndex);
         }
-        strippedResult += c;
+    }
+
+    for (const QString &line : contentLines) {
+        if (line.length()) {
+            strippedResult.append(line);
+            strippedResult.append("\r\n");
+        }
     }
 
     qSwap(strippedResult, m_gcodeContent);

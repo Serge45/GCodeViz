@@ -35,12 +35,10 @@ private slots:
     void on_actionOpen_triggered();
     void on_actionSaveMotionCommands_triggered();
     void onMemoryMonitorUpdated(size_t curUsage, size_t maxUsage);
-    void on_gcodeListWidget_itemClicked(QListWidgetItem *item);
 
 private:
-    void updateGCodeListView(const QList<GCodeCommand> &list);
+    void updateGCodeView(const QString &gcodes);
     void updateTraceView(const QList<GCodeCommand> &list);
-    void updateCommandListView(const QList<GCodeCommand> &gcodeCmdList);
 
 private:
     Ui::MainWindow *ui;

@@ -72,13 +72,13 @@ void MainWindow::on_actionOpen_triggered()
 
         if (f.open(QFile::ReadOnly | QFile::Truncate)) {
             QTextStream stream(&f);
-            GCodeInterpreter interpreter(stream.readAll());
+            QString gcodes = stream.readAll();
+            GCodeInterpreter interpreter(gcodes);
             QElapsedTimer timer;
             timer.start();
             m_lastUsedCommandList = interpreter.interpret();
             qDebug() << "Interpreter time cost: " << timer.elapsed() << " ms";
-            updateGCodeListView(m_lastUsedCommandList);
-            updateCommandListView(m_lastUsedCommandList);
+            updateGCodeView(gcodes);
             updateTraceView(m_lastUsedCommandList);
             f.close();
         }
@@ -93,16 +93,21 @@ void MainWindow::on_actionSaveMotionCommands_triggered()
                                              tr("*.PRG"));
 
     if (path.size() > 2) {
+        QList<KMCommand *> motionCommands = GCodeVisualizer().toKMMotionCommands(m_lastUsedCommandList, "xyzSpace");
         QFile f(path);
 
         if (f.open(QFile::WriteOnly | QFile::Truncate)) {
             QTextStream stream(&f);
 
-            for (int i = 0; i < ui->commandListWidget->count(); ++i) {
-                stream << ui->commandListWidget->item(i)->text();
+            foreach (const KMCommand *command, motionCommands) {
+                stream << command->toQString();
             }
 
             f.close();
+        }
+
+        foreach (const KMCommand *command, motionCommands) {
+            delete command;
         }
     }
 
@@ -116,23 +121,9 @@ void MainWindow::onMemoryMonitorUpdated(size_t curUsage, size_t maxUsage)
     m_memoryUsageProgressBar->setValue(curUsage);
 }
 
-void MainWindow::on_gcodeListWidget_itemClicked(QListWidgetItem *item)
+void MainWindow::updateGCodeView(const QString &gcodes)
 {
-    int row = ui->gcodeListWidget->row(item);
-    ui->traceView->setHighlightSegment(m_segmentList[row]);
-    ui->traceView->update();
-}
-
-void MainWindow::updateGCodeListView(const QList<GCodeCommand> &list)
-{
-    ui->gcodeListWidget->clear();
-
-    ui->gcodeListWidget->setUpdatesEnabled(false);
-
-    foreach (auto &s, list) {
-        ui->gcodeListWidget->addItem(s.toString());
-    }
-    ui->gcodeListWidget->setUpdatesEnabled(true);
+    ui->gcodeView->insertPlainText(gcodes);
 }
 
 void MainWindow::updateTraceView(const QList<GCodeCommand> &list)
@@ -161,22 +152,4 @@ void MainWindow::updateTraceView(const QList<GCodeCommand> &list)
     }
 
     progressDialog.setValue(viz.size() + 1);
-}
-
-void MainWindow::updateCommandListView(const QList<GCodeCommand> &gcodeCmdList)
-{
-    ui->commandListWidget->clear();
-    auto cmdList = GCodeVisualizer().toKMMotionCommands(gcodeCmdList, "xyzSpace");
-
-    ui->commandListWidget->setUpdatesEnabled(false);
-
-    foreach (auto &c, cmdList) {
-        ui->commandListWidget->addItem(c->toQString());
-    }
-
-    ui->commandListWidget->setUpdatesEnabled(true);
-
-    for (int i = 0; i < cmdList.size(); ++i) {
-        delete cmdList[i];
-    }
 }
