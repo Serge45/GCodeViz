@@ -2,7 +2,8 @@
 #include <QApplication>
 #include <QDebug>
 
-#ifdef __WIN32
+#if defined(_WIN32)
+#include <Windows.h>
 #define sleepMs(X) Sleep(X)
 #else
 #include <unistd.h>
@@ -14,7 +15,7 @@ MemoryMonitorObject::MemoryMonitorObject(QObject *parent)
       m_currentUsage(0), m_peakUsage(0), m_maximalUsage(0),
       m_updatePeriodMs(1000)
 {
-#ifdef __WIN32
+#ifdef _WIN32
     ZeroMemory(&m_memoryCounter, sizeof(m_memoryCounter));
     ZeroMemory(&m_memoryStatus, sizeof(m_memoryStatus));
 #endif
@@ -54,7 +55,7 @@ void MemoryMonitorObject::setUpdatePeriod(MemoryMonitorObject::UpdatePeriod peri
 
 size_t MemoryMonitorObject::pollMemoryUsage()
 {
-#ifdef __WIN32
+#ifdef _WIN32
     if (auto appHandle = GetCurrentProcess()) {
 
         if (GetProcessMemoryInfo(appHandle,
@@ -70,7 +71,7 @@ size_t MemoryMonitorObject::pollMemoryUsage()
 
 void MemoryMonitorObject::determineMaxmialUsage()
 {
-#ifdef __WIN32
+#ifdef _WIN32
     const size_t systemUpperBound = (~0x00) >> 1;
 
     GlobalMemoryStatus(&m_memoryStatus);

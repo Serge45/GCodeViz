@@ -16,6 +16,15 @@ RCC_DIR = ./rcc
 
 INCLUDEPATH += include
 
+win32 {
+    LIBS += Opengl32.lib
+    !contains(QMAKE_TARGET.arch, x86_64) {
+        message("x86 build")
+    } else {
+        message("x86_64 build")
+    }
+}
+
 SOURCES += main.cpp\
         mainwindow.cpp \
     interpreter/gcodecommand.cpp \

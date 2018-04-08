@@ -1,18 +1,22 @@
 #ifdef __APPLE__
 #include "OpenGL/gl.h"
 #include "OpenGL/glu.h"
+#elif defined(_WIN32)
+#include <Windows.h>
+#include "GL/gl.h"
+#include "GL/glu.h"
 #else
 #include "GL/gl.h"
 #include "GL/glu.h"
 #endif
 #include <cassert>
+#include <cmath>
 #include <QMouseEvent>
 #include <QAction>
 #include <QActionGroup>
 #include <QMenu>
 #include <QMutexLocker>
 #include <QDebug>
-#include <cmath>
 #include "gldrawable.h"
 #include "motiontraceview.h"
 

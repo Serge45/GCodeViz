@@ -1,5 +1,6 @@
 #include "glmotiontrace.h"
 #include <cmath>
+#include <algorithm>
 
 namespace {
     GLfloat distance2(const GLDrawable::GLfloat3 &p,
@@ -13,7 +14,7 @@ namespace {
 }
 
 GLMotionTrace::GLMotionTrace()
-    : m_addThreshold(1e-5), m_absMax({1, 1, 1}) {
+    : m_addThreshold(1e-5f), m_absMax({1, 1, 1}) {
 
 }
 

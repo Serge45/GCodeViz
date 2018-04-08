@@ -3,8 +3,8 @@
 
 #include <QObject>
 
-#ifdef __WIN32
-#include <windows.h>
+#ifdef _WIN32
+#include <Windows.h>
 #include <psapi.h>
 #endif
 
@@ -45,7 +45,7 @@ private:
     size_t m_maximalUsage;
     size_t m_updatePeriodMs;
 
-#ifdef __WIN32
+#ifdef _WIN32
     PROCESS_MEMORY_COUNTERS m_memoryCounter;
     MEMORYSTATUS m_memoryStatus;
 #endif
