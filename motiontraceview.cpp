@@ -267,6 +267,9 @@ void MotionTraceView::initActions() {
 
     m_actionDrawMesh->setCheckable(true);
     m_actionDrawMesh->setChecked(true);
+
+    addActions(m_planeActionGroup->actions());
+    addAction(m_actionDrawMesh);
 }
 
 void MotionTraceView::drawAxes() {

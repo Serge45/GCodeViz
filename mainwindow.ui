@@ -65,7 +65,13 @@
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
+   <widget class="QMenu" name="menuTraceView">
+    <property name="title">
+     <string>&amp;Trace View</string>
+    </property>
+   </widget>
    <addaction name="menu_File"/>
+   <addaction name="menuTraceView"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen">

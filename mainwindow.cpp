@@ -18,6 +18,10 @@
 #include "interpreter/gcodeinterpreter.h"
 #include "interpreter/gcodevisualizer.h"
 
+namespace {
+    const QString APP_NAME = "GCodeViz";
+}
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -29,6 +33,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->splitter->setSizes(QList<int>()
                            << (width() * 5) / 6
                            << width() / 6);
+
+    ui->menuTraceView->addActions(ui->traceView->actions());
 
     initStatusBar();
 
@@ -82,6 +88,8 @@ void MainWindow::on_actionOpen_triggered()
             updateTraceView(m_lastUsedCommandList);
             f.close();
         }
+
+        setWindowTitle(QString("%1(%2)").arg(APP_NAME).arg(path));
     }
 }
 
