@@ -1,5 +1,6 @@
 # GCodeViz #
-![](https://travis-ci.org/Serge45/GCodeViz.svg?branch=master)
+![macOS building status](https://travis-ci.org/Serge45/GCodeViz.svg?branch=master)
+[![Build status](https://ci.appveyor.com/api/projects/status/vyi83bx3gjkox338?svg=true)](https://ci.appveyor.com/project/Serge45/gcodeviz)
 
 Open source G-Code visualization tool
 
