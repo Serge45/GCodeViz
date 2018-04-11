@@ -49,6 +49,7 @@ private slots:
     void onCustomContextMenuRequested(const QPoint &pt);
     void onPlaneActionGroupTriggered(QAction *action);
     void onActionDrawMeshTriggered(bool onOff);
+    void onActionRenderWithOptionsTriggered();
 
 private:
     void initShaders();
@@ -64,8 +65,11 @@ private:
     void updateModelViewProjection();
     void drawObject(GLDrawable *obj,
                     QOpenGLShaderProgram *drawer,
-                    const QColor &color);
+                    const QColor &color,
+                    qreal beginPercentage = 0.,
+                    qreal endPercentage = 1.);
     void rescale();
+    void resetObjectDrawingPercentages();
     QPointF calculateShift(const QPointF &curPos, const QPointF &pressPos) const;
 
 private:
@@ -95,6 +99,7 @@ private:
     QAction *m_actionPlaneXZ;
     QAction *m_actionOrigin;
     QAction *m_actionDrawMesh;
+    QAction *m_actionRenderWithOptions;
     QActionGroup *m_planeActionGroup;
     QPointF m_projectionShift;
     QMutex m_rescaleMutex;
@@ -102,6 +107,7 @@ private:
     bool m_drawMesh;
     QPair<int, int> m_highlightSegment;
     QTimer m_updateTimer;
+    QPair<qreal, qreal> m_objectDrawingPercentages;
 };
 
 #endif // MOTIONTRACEVIEW_H

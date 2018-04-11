@@ -17,6 +17,7 @@
 #include <QMenu>
 #include <QMutexLocker>
 #include <QDebug>
+#include <QInputDialog>
 #include "gldrawable.h"
 #include "motiontraceview.h"
 
@@ -37,10 +38,12 @@ MotionTraceView::MotionTraceView(QWidget *parent)
     m_actionPlaneXZ(new QAction(tr("X-Z Plane"), this)),
     m_actionOrigin(new QAction(tr("Origin"), this)),
     m_actionDrawMesh(new QAction(tr("Draw Mesh"), this)),
+    m_actionRenderWithOptions(new QAction(tr("Render with Options"), this)),
     m_planeActionGroup(new QActionGroup(this)),
     m_rescaleMutex(QMutex::Recursive),
     m_planeMeshXY(1, GLPlaneMesh::PlaneXY),
-    m_drawMesh(true) {
+    m_drawMesh(true),
+    m_objectDrawingPercentages(0., 1.) {
 
     updateProjection();
     updateModelViewProjection();
@@ -197,6 +200,26 @@ void MotionTraceView::onActionDrawMeshTriggered(bool onOff) {
     m_drawMesh = onOff;
 }
 
+void MotionTraceView::onActionRenderWithOptionsTriggered()
+{
+    bool ok = false;
+
+    const double beginPercentage = QInputDialog::getDouble(this, tr("Rendering Range"), tr("Begin Percentage"), 0, 0, 100, 1, &ok);
+
+    if (!ok) {
+        return;
+    }
+
+    const double endPercentage = QInputDialog::getDouble(this, tr("Rendering Range"), tr("End Percentage"), 100, beginPercentage, 100, 1, &ok);
+
+    if (!ok) {
+        return;
+    }
+
+    m_objectDrawingPercentages.first = beginPercentage / 100.;
+    m_objectDrawingPercentages.second = endPercentage / 100.;
+}
+
 void MotionTraceView::addPointToTrace(const QVector3D &pt, int traceIdx) {
     GLDrawable::GLfloat3 glPt = {static_cast<GLfloat>(pt.x()),
                                  static_cast<GLfloat>(pt.y()),
@@ -265,11 +288,15 @@ void MotionTraceView::initActions() {
     connect(m_actionDrawMesh, SIGNAL(triggered(bool)),
             this, SLOT(onActionDrawMeshTriggered(bool)));
 
+    connect(m_actionRenderWithOptions, SIGNAL(triggered(bool)),
+            this, SLOT(onActionRenderWithOptionsTriggered()));
+
     m_actionDrawMesh->setCheckable(true);
     m_actionDrawMesh->setChecked(true);
 
     addActions(m_planeActionGroup->actions());
     addAction(m_actionDrawMesh);
+    addAction(m_actionRenderWithOptions);
 }
 
 void MotionTraceView::drawAxes() {
@@ -283,7 +310,8 @@ void MotionTraceView::drawAxes() {
 
 void MotionTraceView::drawTrace(int idx) {
     assert(idx < m_traces.size() && "Index out of bound");
-    drawObject(&m_traces[idx], m_axisShaderProgram, m_traceColor);
+    drawObject(&m_traces[idx], m_axisShaderProgram, m_traceColor,
+               m_objectDrawingPercentages.first, m_objectDrawingPercentages.second);
 }
 
 void MotionTraceView::drawMesh() {
@@ -337,21 +365,27 @@ void MotionTraceView::updateModelViewProjection() {
     m_modelViewProjection = m_projection * m_worldRotation * m_modelView;
 }
 
-void MotionTraceView::drawObject(GLDrawable *obj, QOpenGLShaderProgram *drawer, const QColor &color) {
+void MotionTraceView::drawObject(GLDrawable *obj, QOpenGLShaderProgram *drawer, const QColor &color, qreal beginPercentage, qreal endPercentage) {
     drawer->bind();
 
     drawer->enableAttributeArray("qt_Vertex");
     drawer->setUniformValue("qt_ModelViewProjectionMatrix",
                                          m_modelViewProjection);
 
+    size_t beginDataOffset = obj->points().size() * beginPercentage;
+    const qreal drawingRatio = (endPercentage - beginPercentage);
+    size_t indexTotalLength =  drawingRatio * obj->indexBuffer().size();
+    size_t dataTotalLength = drawingRatio * obj->points().size();
+
     drawer->setUniformValue("qt_InColor", color);
-    drawer->setAttributeArray("qt_Vertex", &(obj->points().data()->x), 3);
+    drawer->setAttributeArray("qt_Vertex", &((obj->points().data() + beginDataOffset)->x), 3);
+
 
     if (obj->hasIndexBuffer()) {
-        glDrawElements(obj->polygonType(), obj->indexBuffer().size(),
-                       GL_UNSIGNED_INT, obj->indexBuffer().data());
+        glDrawElements(obj->polygonType(), indexTotalLength,
+                       GL_UNSIGNED_INT, obj->indexBuffer().data() + beginDataOffset);
     } else {
-        glDrawArrays(obj->polygonType(), 0, obj->points().size());
+        glDrawArrays(obj->polygonType(), 0, dataTotalLength);
     }
 
     drawer->disableAttributeArray("qt_Vertex");
@@ -372,6 +406,11 @@ void MotionTraceView::rescale() {
         updateProjection();
         updateModelViewProjection();
     }
+}
+
+void MotionTraceView::resetObjectDrawingPercentages()
+{
+    m_objectDrawingPercentages = qMakePair(0., 1.);;
 }
 
 QPointF MotionTraceView::calculateShift(const QPointF &curPos,
