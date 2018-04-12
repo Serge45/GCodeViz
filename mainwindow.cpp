@@ -131,6 +131,7 @@ void MainWindow::onMemoryMonitorUpdated(size_t curUsage, size_t maxUsage)
 
 void MainWindow::updateGCodeView(const QString &gcodes)
 {
+    ui->gcodeView->clear();
     ui->gcodeView->insertPlainText(gcodes);
 }
 

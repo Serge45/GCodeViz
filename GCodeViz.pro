@@ -46,7 +46,8 @@ SOURCES += main.cpp\
     motioncommand/movecommand.cpp \
     motioncommand/movemotionparameter.cpp \
     glplanemesh.cpp \
-    memory/memorymonitorobject.cpp
+    memory/memorymonitorobject.cpp \
+    tracedrawingrangedialog.cpp
 
 HEADERS  += mainwindow.h \
     interpreter/gcodecommand.h \
@@ -70,9 +71,11 @@ HEADERS  += mainwindow.h \
     motioncommand/movemotionparameter.h \
     motioncommand/vectorutils.h \
     glplanemesh.h \
-    memory/memorymonitorobject.h
+    memory/memorymonitorobject.h \
+    tracedrawingrangedialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    tracedrawingrangedialog.ui
 
 RESOURCES += \
     resources.qrc

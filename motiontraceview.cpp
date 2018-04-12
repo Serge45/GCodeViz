@@ -17,9 +17,11 @@
 #include <QMenu>
 #include <QMutexLocker>
 #include <QDebug>
-#include <QInputDialog>
+#include <QSlider>
+#include <QCheckBox>
 #include "gldrawable.h"
 #include "motiontraceview.h"
+#include "tracedrawingrangedialog.h"
 
 namespace {
 GLfloat sqrt2 = static_cast<GLfloat>(sqrt(2.0));
@@ -60,6 +62,10 @@ MotionTraceView::MotionTraceView(QWidget *parent)
     m_updateTimer.setSingleShot(false);
     connect(&m_updateTimer, SIGNAL(timeout()), this, SLOT(update()));
     m_updateTimer.start();
+
+    m_animateTimer.setInterval(30);
+    m_animateTimer.setSingleShot(false);
+    connect(&m_animateTimer, SIGNAL(timeout()), this, SLOT(onAnimateTimerTimeout()));
 }
 
 MotionTraceView::~MotionTraceView() {
@@ -202,22 +208,51 @@ void MotionTraceView::onActionDrawMeshTriggered(bool onOff) {
 
 void MotionTraceView::onActionRenderWithOptionsTriggered()
 {
-    bool ok = false;
+    TraceDrawingRangeDialog settingDialog(this);
+    const bool animated = m_animateTimer.isActive();
+    const qreal currentEndRange = m_objectDrawingPercentages.second;
+    settingDialog.drawingRangeSlider()->setValue(static_cast<int>(m_objectDrawingPercentages.second * 100.));
+    settingDialog.animateCheckBox()->setChecked(animated);
 
-    const double beginPercentage = QInputDialog::getDouble(this, tr("Rendering Range"), tr("Begin Percentage"), 0, 0, 100, 1, &ok);
+    connect(settingDialog.drawingRangeSlider(), SIGNAL(valueChanged(int)),
+            this, SLOT(onRenderingRangeChanged(int)));
 
-    if (!ok) {
-        return;
+    connect(settingDialog.animateCheckBox(), SIGNAL(stateChanged(int)),
+            this, SLOT(onAnimateToggled(int)));
+
+    int returnState = settingDialog.exec();
+
+    if (returnState == QDialog::Rejected) {
+        if (animated) {
+            m_animateTimer.start();
+        } else {
+            m_animateTimer.stop();
+        }
+        m_objectDrawingPercentages.second = currentEndRange;
     }
+}
 
-    const double endPercentage = QInputDialog::getDouble(this, tr("Rendering Range"), tr("End Percentage"), 100, beginPercentage, 100, 1, &ok);
+void MotionTraceView::onRenderingRangeChanged(int endRange)
+{
+    m_objectDrawingPercentages.second = static_cast<qreal>(endRange) / 100.;
+}
 
-    if (!ok) {
-        return;
+void MotionTraceView::onAnimateToggled(int state)
+{
+    if (state == Qt::Checked) {
+        m_animateTimer.start();;
+    } else {
+        m_animateTimer.stop();
     }
+}
 
-    m_objectDrawingPercentages.first = beginPercentage / 100.;
-    m_objectDrawingPercentages.second = endPercentage / 100.;
+void MotionTraceView::onAnimateTimerTimeout()
+{
+    if (m_objectDrawingPercentages.second < 0.99) {
+        m_objectDrawingPercentages.second += 0.01;
+    } else {
+        m_objectDrawingPercentages.second = m_objectDrawingPercentages.first;
+    }
 }
 
 void MotionTraceView::addPointToTrace(const QVector3D &pt, int traceIdx) {
@@ -234,12 +269,15 @@ void MotionTraceView::clearTrace(int traceIdx) {
 }
 
 void MotionTraceView::clearAllTrace() {
+    m_animateTimer.stop();
     m_highlightSegment.first = 0;
     m_highlightSegment.second = 0;
 
     for (int i = 0; i < m_traces.size(); ++i) {
         m_traces[i].clear();
     }
+
+    resetObjectDrawingPercentages();
     rescale();
 }
 

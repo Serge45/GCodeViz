@@ -50,6 +50,9 @@ private slots:
     void onPlaneActionGroupTriggered(QAction *action);
     void onActionDrawMeshTriggered(bool onOff);
     void onActionRenderWithOptionsTriggered();
+    void onRenderingRangeChanged(int endRange);
+    void onAnimateToggled(int state);
+    void onAnimateTimerTimeout();
 
 private:
     void initShaders();
@@ -107,6 +110,7 @@ private:
     bool m_drawMesh;
     QPair<int, int> m_highlightSegment;
     QTimer m_updateTimer;
+    QTimer m_animateTimer;
     QPair<qreal, qreal> m_objectDrawingPercentages;
 };
 
