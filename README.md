@@ -4,7 +4,7 @@
 
 Open source G-Code visualization tool
 
-![demo](https://farm2.staticflickr.com/1693/25655823712_60dcdaf007_b.jpg)
+![demo](images/gcodeviz-octocat.gif)
 
 ## Implemented Functions ##
  - Load G-Codes
@@ -12,6 +12,7 @@ Open source G-Code visualization tool
  - Rotate G-Code view
  - Pan G-Code view
  - Convert to Servotronix softMC compatible motion program
+ - Adjust drawing progress after G-Code rendered
 
 ## Supported G-Code ##
  - G00
