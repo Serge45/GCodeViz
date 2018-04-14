@@ -53,6 +53,7 @@ private slots:
     void onRenderingRangeChanged(int endRange);
     void onAnimateToggled(int state);
     void onAnimateTimerTimeout();
+    void onTraceColorDialogColorChanged(const QColor &color);
 
 private:
     void initShaders();

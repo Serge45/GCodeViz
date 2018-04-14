@@ -19,6 +19,7 @@
 #include <QDebug>
 #include <QSlider>
 #include <QCheckBox>
+#include <QColorDialog>
 #include "gldrawable.h"
 #include "motiontraceview.h"
 #include "tracedrawingrangedialog.h"
@@ -213,12 +214,19 @@ void MotionTraceView::onActionRenderWithOptionsTriggered()
     const qreal currentEndRange = m_objectDrawingPercentages.second;
     settingDialog.drawingRangeSlider()->setValue(static_cast<int>(m_objectDrawingPercentages.second * 100.));
     settingDialog.animateCheckBox()->setChecked(animated);
+    settingDialog.traceColorDialog()->setCurrentColor(m_traceColor);
 
     connect(settingDialog.drawingRangeSlider(), SIGNAL(valueChanged(int)),
             this, SLOT(onRenderingRangeChanged(int)));
 
     connect(settingDialog.animateCheckBox(), SIGNAL(stateChanged(int)),
             this, SLOT(onAnimateToggled(int)));
+
+    connect(settingDialog.traceColorDialog(), SIGNAL(colorSelected(QColor)),
+            this, SLOT(onTraceColorDialogColorChanged(QColor)));
+
+    connect(settingDialog.traceColorDialog(), SIGNAL(currentColorChanged(QColor)),
+            this, SLOT(onTraceColorDialogColorChanged(QColor)));
 
     int returnState = settingDialog.exec();
 
@@ -253,6 +261,11 @@ void MotionTraceView::onAnimateTimerTimeout()
     } else {
         m_objectDrawingPercentages.second = m_objectDrawingPercentages.first;
     }
+}
+
+void MotionTraceView::onTraceColorDialogColorChanged(const QColor &color)
+{
+    m_traceColor = color;
 }
 
 void MotionTraceView::addPointToTrace(const QVector3D &pt, int traceIdx) {

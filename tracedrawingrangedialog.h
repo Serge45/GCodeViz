@@ -10,6 +10,7 @@ class TraceDrawingRangeDialog;
 class QSlider;
 class QSpinBox;
 class QCheckBox;
+class QColorDialog;
 
 class TraceDrawingRangeDialog : public QDialog
 {
@@ -21,9 +22,14 @@ public:
 
     QSlider *drawingRangeSlider();
     QCheckBox *animateCheckBox();
+    QColorDialog *traceColorDialog();
+
+private slots:
+    void on_traceColorToolButton_clicked();
 
 private:
     Ui::TraceDrawingRangeDialog *ui;
+    QColorDialog *m_traceColorDialog;
 };
 
 #endif // TRACEDRAWINGRANGEDIALOG_H
