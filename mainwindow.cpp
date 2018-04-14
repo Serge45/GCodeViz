@@ -26,7 +26,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     m_memoryUsageProgressBar(new QProgressBar(this)),
-    m_memoryUsageLabel(new QLabel(this))
+    m_memoryUsageLabel(new QLabel(this)),
+    m_openHistoryManager(new OpenHistoryManager(this))
 {
     qRegisterMetaType<size_t>("size_t");
     ui->setupUi(this);
@@ -43,6 +44,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_memoryMonitorFuture = QtConcurrent::run(&m_memPollingObject,
                                               &MemoryMonitorObject::startMonitor);
+
+    initOpenHistoryMenu();
 }
 
 MainWindow::~MainWindow()
@@ -66,6 +69,12 @@ void MainWindow::initStatusBar()
             m_memoryUsageLabel, SLOT(setText(QString)));
 }
 
+void MainWindow::initOpenHistoryMenu()
+{
+    connect(m_openHistoryManager->filePathActions(), SIGNAL(triggered(QAction*)),
+            this, SLOT(onOpenHistoryActionGroupTriggered(QAction*)));
+}
+
 void MainWindow::on_actionOpen_triggered()
 {
     auto path = QFileDialog::getOpenFileName(this,
@@ -73,23 +82,9 @@ void MainWindow::on_actionOpen_triggered()
                                              "",
                                              tr("Text files(*.txt *.nc *.ncc *.tap *.gcode)"));
 
-    if (path.size() > 2) {
-        QFile f(path);
-
-        if (f.open(QFile::ReadOnly | QFile::Truncate)) {
-            QTextStream stream(&f);
-            QString gcodes = stream.readAll();
-            GCodeInterpreter interpreter(gcodes);
-            QElapsedTimer timer;
-            timer.start();
-            m_lastUsedCommandList = interpreter.interpret();
-            qDebug() << "Interpreter time cost: " << timer.elapsed() << " ms";
-            updateGCodeView(gcodes);
-            updateTraceView(m_lastUsedCommandList);
-            f.close();
-        }
-
+    if (openGCodeFile(path)) {
         setWindowTitle(QString("%1(%2)").arg(APP_NAME).arg(path));
+        updateOpenHistoryActions(path);
     }
 }
 
@@ -118,7 +113,6 @@ void MainWindow::on_actionSaveMotionCommands_triggered()
             delete command;
         }
     }
-
 }
 
 void MainWindow::onMemoryMonitorUpdated(size_t curUsage, size_t maxUsage)
@@ -127,6 +121,16 @@ void MainWindow::onMemoryMonitorUpdated(size_t curUsage, size_t maxUsage)
         m_memoryUsageProgressBar->setMaximum(maxUsage);
     }
     m_memoryUsageProgressBar->setValue(curUsage);
+}
+
+void MainWindow::onOpenHistoryActionGroupTriggered(QAction *action)
+{
+    QString path = action->text();
+
+    if (openGCodeFile(path)) {
+        setWindowTitle(QString("%1(%2)").arg(APP_NAME).arg(path));
+        updateOpenHistoryActions(path);
+    }
 }
 
 void MainWindow::updateGCodeView(const QString &gcodes)
@@ -161,4 +165,47 @@ void MainWindow::updateTraceView(const QList<GCodeCommand> &list)
     }
 
     progressDialog.setValue(viz.size() + 1);
+}
+
+bool MainWindow::openGCodeFile(const QString &path)
+{
+    bool openOk = false;
+
+    if (path.size() > 2) {
+        QFile f(path);
+
+        if (f.open(QFile::ReadOnly | QFile::Truncate)) {
+            QTextStream stream(&f);
+            QString gcodes = stream.readAll();
+            GCodeInterpreter interpreter(gcodes);
+            QElapsedTimer timer;
+            timer.start();
+            m_lastUsedCommandList = interpreter.interpret();
+            qDebug() << "Interpreter time cost: " << timer.elapsed() << " ms";
+            updateGCodeView(gcodes);
+            updateTraceView(m_lastUsedCommandList);
+            f.close();
+            openOk = true;
+        }
+    }
+
+    return openOk;
+}
+
+void MainWindow::updateOpenHistoryActions(const QString &newOpenPath)
+{
+    m_openHistoryManager->addNewFilePath(newOpenPath);
+
+    for (QAction *a : ui->menuRecentOpened->actions()) {
+        if (a != ui->actionHistoryClear) {
+            ui->menuRecentOpened->removeAction(a);
+        }
+    }
+
+    auto currentActions = m_openHistoryManager->filePathActions()->actions();
+
+    for (auto i = currentActions.rbegin(); i != currentActions.rend(); ++i) {
+        ui->menuRecentOpened->insertAction(ui->actionHistoryClear,
+                                           *i);
+    }
 }

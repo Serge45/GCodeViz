@@ -60,7 +60,15 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <widget class="QMenu" name="menuRecentOpened">
+     <property name="title">
+      <string>Recent Opened</string>
+     </property>
+     <addaction name="separator"/>
+     <addaction name="actionHistoryClear"/>
+    </widget>
     <addaction name="actionOpen"/>
+    <addaction name="menuRecentOpened"/>
     <addaction name="actionSaveMotionCommands"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
@@ -90,6 +98,11 @@
    </property>
    <property name="toolTip">
     <string>Save as Servotronix compatible motion command format</string>
+   </property>
+  </action>
+  <action name="actionHistoryClear">
+   <property name="text">
+    <string>Clear</string>
    </property>
   </action>
  </widget>

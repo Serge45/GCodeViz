@@ -8,6 +8,7 @@
 #include <QFuture>
 #include "interpreter/gcodecommand.h"
 #include "memory/memorymonitorobject.h"
+#include "openhistorymanager.h"
 
 namespace Ui {
 class MainWindow;
@@ -27,6 +28,7 @@ public:
 
 protected:
     void initStatusBar();
+    void initOpenHistoryMenu();
 
 signals:
     void addPointToTraceView(const QVector3D &pt, int traceIdx);
@@ -35,10 +37,13 @@ private slots:
     void on_actionOpen_triggered();
     void on_actionSaveMotionCommands_triggered();
     void onMemoryMonitorUpdated(size_t curUsage, size_t maxUsage);
+    void onOpenHistoryActionGroupTriggered(QAction *action);
 
 private:
     void updateGCodeView(const QString &gcodes);
     void updateTraceView(const QList<GCodeCommand> &list);
+    bool openGCodeFile(const QString &path);
+    void updateOpenHistoryActions(const QString &newOpenPath);
 
 private:
     Ui::MainWindow *ui;
@@ -48,6 +53,7 @@ private:
     QProgressBar *m_memoryUsageProgressBar;
     QLabel *m_memoryUsageLabel;
     QList<QPair<int, int> > m_segmentList;
+    OpenHistoryManager *m_openHistoryManager;
 };
 
 #endif // MAINWINDOW_H

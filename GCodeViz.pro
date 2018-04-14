@@ -47,7 +47,8 @@ SOURCES += main.cpp\
     motioncommand/movemotionparameter.cpp \
     glplanemesh.cpp \
     memory/memorymonitorobject.cpp \
-    tracedrawingrangedialog.cpp
+    tracedrawingrangedialog.cpp \
+    openhistorymanager.cpp
 
 HEADERS  += mainwindow.h \
     interpreter/gcodecommand.h \
@@ -72,7 +73,8 @@ HEADERS  += mainwindow.h \
     motioncommand/vectorutils.h \
     glplanemesh.h \
     memory/memorymonitorobject.h \
-    tracedrawingrangedialog.h
+    tracedrawingrangedialog.h \
+    openhistorymanager.h
 
 FORMS    += mainwindow.ui \
     tracedrawingrangedialog.ui
