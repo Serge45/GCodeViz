@@ -73,6 +73,9 @@ void MainWindow::initOpenHistoryMenu()
 {
     connect(m_openHistoryManager->filePathActions(), SIGNAL(triggered(QAction*)),
             this, SLOT(onOpenHistoryActionGroupTriggered(QAction*)));
+
+    connect(ui->actionOpenHistoryClear, SIGNAL(triggered()),
+            m_openHistoryManager, SLOT(clear()));
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -130,6 +133,15 @@ void MainWindow::onOpenHistoryActionGroupTriggered(QAction *action)
     if (openGCodeFile(path)) {
         setWindowTitle(QString("%1(%2)").arg(APP_NAME).arg(path));
         updateOpenHistoryActions(path);
+    }
+}
+
+void MainWindow::on_actionOpenHistoryClear_triggered()
+{
+    for (QAction *a : ui->menuRecentOpened->actions()) {
+        if (a != ui->actionOpenHistoryClear) {
+            ui->menuRecentOpened->removeAction(a);
+        }
     }
 }
 
@@ -197,7 +209,7 @@ void MainWindow::updateOpenHistoryActions(const QString &newOpenPath)
     m_openHistoryManager->addNewFilePath(newOpenPath);
 
     for (QAction *a : ui->menuRecentOpened->actions()) {
-        if (a != ui->actionHistoryClear) {
+        if (a != ui->actionOpenHistoryClear) {
             ui->menuRecentOpened->removeAction(a);
         }
     }
@@ -205,7 +217,7 @@ void MainWindow::updateOpenHistoryActions(const QString &newOpenPath)
     auto currentActions = m_openHistoryManager->filePathActions()->actions();
 
     for (auto i = currentActions.rbegin(); i != currentActions.rend(); ++i) {
-        ui->menuRecentOpened->insertAction(ui->actionHistoryClear,
+        ui->menuRecentOpened->insertAction(ui->actionOpenHistoryClear,
                                            *i);
     }
 }

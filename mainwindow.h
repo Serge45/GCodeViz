@@ -38,6 +38,7 @@ private slots:
     void on_actionSaveMotionCommands_triggered();
     void onMemoryMonitorUpdated(size_t curUsage, size_t maxUsage);
     void onOpenHistoryActionGroupTriggered(QAction *action);
+    void on_actionOpenHistoryClear_triggered();
 
 private:
     void updateGCodeView(const QString &gcodes);

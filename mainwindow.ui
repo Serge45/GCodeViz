@@ -65,7 +65,7 @@
       <string>Recent Opened</string>
      </property>
      <addaction name="separator"/>
-     <addaction name="actionHistoryClear"/>
+     <addaction name="actionOpenHistoryClear"/>
     </widget>
     <addaction name="actionOpen"/>
     <addaction name="menuRecentOpened"/>
@@ -100,7 +100,7 @@
     <string>Save as Servotronix compatible motion command format</string>
    </property>
   </action>
-  <action name="actionHistoryClear">
+  <action name="actionOpenHistoryClear">
    <property name="text">
     <string>Clear</string>
    </property>
