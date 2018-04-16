@@ -30,6 +30,10 @@ public:
     explicit MotionTraceView(QWidget *parent);
     ~MotionTraceView() override;
 
+public:
+    QColor traceColor() const;
+    void setTraceColor(const QColor &color);
+
 public slots:
     void addPointToTrace(const QVector3D &pt, int traceIdx);
     void clearTrace(int traceIdx);

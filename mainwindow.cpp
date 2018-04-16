@@ -15,11 +15,13 @@
 #include <QLabel>
 #include <QDebug>
 #include <QtConcurrentRun>
+#include <QSettings>
 #include "interpreter/gcodeinterpreter.h"
 #include "interpreter/gcodevisualizer.h"
 
 namespace {
     const QString APP_NAME = "GCodeViz";
+    const QString ORGANIZATION_NAME = "SP Studio";
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -46,10 +48,12 @@ MainWindow::MainWindow(QWidget *parent) :
                                               &MemoryMonitorObject::startMonitor);
 
     initOpenHistoryMenu();
+    loadAppSettings();
 }
 
 MainWindow::~MainWindow()
 {
+    saveAppSettings();
     m_memPollingObject.stopMonitor();
     m_memoryMonitorFuture.waitForFinished();
     delete ui;
@@ -220,4 +224,61 @@ void MainWindow::updateOpenHistoryActions(const QString &newOpenPath)
         ui->menuRecentOpened->insertAction(ui->actionOpenHistoryClear,
                                            *i);
     }
+}
+
+void MainWindow::saveAppSettings()
+{
+    QSettings settings(ORGANIZATION_NAME, APP_NAME, this);
+    settings.beginGroup("mainWindow");
+    settings.setValue("pos", pos());
+    settings.setValue("size", size());
+    settings.endGroup();
+
+    settings.beginGroup("traceView");
+    settings.setValue("traceColor", ui->traceView->traceColor().rgba());
+    settings.endGroup();
+
+    settings.beginWriteArray("openHistory");
+
+    auto actions = m_openHistoryManager->filePathActions()->actions();
+
+    for (int i = 0; i < actions.size(); ++i) {
+        settings.setArrayIndex(i);
+        settings.setValue("filePath", actions[i]->text());
+    }
+
+    settings.endArray();
+}
+
+void MainWindow::loadAppSettings()
+{
+    QSettings settings(ORGANIZATION_NAME, APP_NAME, this);
+    settings.beginGroup("mainWindow");
+    auto pos = settings.value("pos", QPoint(100, 100)).toPoint();
+    auto size = settings.value("size", QSize(800, 600)).toSize();
+    move(pos);
+    resize(size);
+    settings.endGroup();
+
+    settings.beginGroup("traceView");
+    auto traceColor = settings.value("traceColor", QRgb(Qt::green)).toUInt();
+    ui->traceView->setTraceColor(QColor::fromRgba(traceColor));
+    settings.endGroup();
+
+    int numOpenFilePaths = settings.beginReadArray("openHistory");
+
+    for (int i = 0; i < numOpenFilePaths; ++i) {
+        settings.setArrayIndex(i);
+        auto filePath = settings.value("filePath", QString()).toString();
+        m_openHistoryManager->addNewFilePath(filePath);
+    }
+
+    auto currentActions = m_openHistoryManager->filePathActions()->actions();
+
+    for (auto i = currentActions.rbegin(); i != currentActions.rend(); ++i) {
+        ui->menuRecentOpened->insertAction(ui->actionOpenHistoryClear,
+                                           *i);
+    }
+
+    settings.endArray();
 }

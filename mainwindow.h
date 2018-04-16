@@ -45,6 +45,8 @@ private:
     void updateTraceView(const QList<GCodeCommand> &list);
     bool openGCodeFile(const QString &path);
     void updateOpenHistoryActions(const QString &newOpenPath);
+    void saveAppSettings();
+    void loadAppSettings();
 
 private:
     Ui::MainWindow *ui;

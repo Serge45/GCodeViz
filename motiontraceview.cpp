@@ -73,6 +73,16 @@ MotionTraceView::~MotionTraceView() {
     m_updateTimer.stop();
 }
 
+QColor MotionTraceView::traceColor() const
+{
+    return m_traceColor;
+}
+
+void MotionTraceView::setTraceColor(const QColor &color)
+{
+    m_traceColor = color;
+}
+
 void MotionTraceView::initializeGL() {
     glEnable(GL_DEPTH_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
