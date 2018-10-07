@@ -25,7 +25,7 @@ Open source G-Code visualization tool
  - G90
  - G91
 
-## Building Intructions ##
+## Building Instructions ##
  Requirements:
  - Qt 5.4+
  - Compiler that supports C++11
